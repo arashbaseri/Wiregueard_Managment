@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>C:\Projects\wireguard_user_manager\bin\Release\net8.0\publish\</_PublishTargetUrl>
+    <History>True|2024-12-23T08:45:34.9450033Z||;True|2024-12-23T03:05:50.8446173+02:00||;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>
