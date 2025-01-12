@@ -22,13 +22,7 @@ namespace WSM.Presentation.Controllers
             _logger = logger;
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Post([FromBody] Update update)
-        //{
-        //    _logger.LogInformation("Received update: {@Update}", update);
-        //    await _botService.HandleUpdateAsync(update);
-        //    return Ok();
-        //}
+
         [HttpPost]
         public async Task<IActionResult> Post()
         {
@@ -59,7 +53,7 @@ namespace WSM.Presentation.Controllers
                     }
                     else 
                     {
-                        _logger.LogInformation("Received update: {@Update}", update);
+                       // _logger.LogInformation("Received update: {@Update}", update);
                         await _botService.HandleUpdateAsync(update);
                     }
 

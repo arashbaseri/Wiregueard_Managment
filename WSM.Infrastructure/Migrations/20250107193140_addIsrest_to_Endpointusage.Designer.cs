@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WSM.Infrastructure.DatabaseContext;
@@ -11,9 +12,11 @@ using WSM.Infrastructure.DatabaseContext;
 namespace WSM.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250107193140_addIsrest_to_Endpointusage")]
+    partial class addIsrest_to_Endpointusage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,23 +96,8 @@ namespace WSM.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ConfigEndPoint")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("ConfigEndPointPort")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ConfigPublicKey")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DefaultWgInterface")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("IpAddress")
                         .IsRequired()
@@ -190,9 +178,6 @@ namespace WSM.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<int>("CountRemaining")
-                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone");

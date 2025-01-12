@@ -15,6 +15,7 @@ namespace WSM.Domain.Entities
         public string LastName { get; set; }    
         public string?  Email { get; set; }
   
+        public int CountRemaining { get; set; }
 
 
     }

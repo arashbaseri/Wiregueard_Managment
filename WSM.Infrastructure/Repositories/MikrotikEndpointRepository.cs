@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WSM.Domain.Entities;
 using WSM.Domain.Repositories;
+using WSM.Domain.ValueObjects;
 using WSM.Infrastructure.DatabaseContext;
 
 namespace WSM.Infrastructure.Repositories
@@ -17,14 +18,118 @@ namespace WSM.Infrastructure.Repositories
         }
         public async Task<int> CreateMikrotikEndpoint(MikrotikEndpoint newItem)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _dbContext.MikrotikEndpoints.AddAsync(newItem);
+                return await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occurred in the method {nameof(MikrotikEndpointRepository)}.{nameof(CreateMikrotikEndpoint)}--{ex.Message}");
+                return -1;
+            }
         }
 
 
 
-        public async Task<int> UpdateMikrotikEndpointR(MikrotikEndpoint newItem)
+        public async Task<int> UpdateMikrotikEndpoint(MikrotikEndpoint newItem)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<List<MikrotikEndpoint>> GetMikrotikEndpointByTelegramId(long telegramId, string filterComment = "")
+        {
+            var query = _dbContext.MikrotikEndpoints
+                .Join(_dbContext.Users,
+                      endpoint => endpoint.UserId,
+                      user => user.Id,
+                      (endpoint, user) => new { endpoint, user })
+                .Where(joined => joined.user.TelegramId == telegramId);
+
+            if (!string.IsNullOrEmpty(filterComment))
+            {
+                query = query.Where(joined => EF.Functions.Like(joined.endpoint.Comment, $"%{filterComment}%"));
+            }
+
+            return await query.Select(joined => joined.endpoint).ToListAsync();
+        }
+
+        public async Task<MikrotikEndpoint?> GetMikrotikEndpointById(long telegramId, Guid id)
+        {
+            return await _dbContext.MikrotikEndpoints
+                .Join(_dbContext.Users,
+                      endpoint => endpoint.UserId,
+                      user => user.Id,
+                      (endpoint, user) => new { endpoint, user })
+                .Where(joined => joined.user.TelegramId == telegramId && joined.endpoint.Id == id)
+                .Select(joined => joined.endpoint)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<MikrotikEndpoint?> GetMikrotikEndpointByPublicKey(Base64EncodedKey publicKey)
+        {
+            try
+            {
+                return await Task.Run(() => _dbContext.MikrotikEndpoints
+                          .AsEnumerable() // Switch to client-side evaluation
+                          .FirstOrDefault(endpoint => endpoint.PublicKey.ToString() == publicKey.ToString()));
+
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occurred in the method {nameof(MikrotikEndpointRepository)}.{nameof(GetMikrotikEndpointByPublicKey)}--{ex.Message}");
+                return null;
+
+            }
+        }
+        public async Task<List<string>> GetAvailableIpsAsync(string cidServer)
+        {
+
+            try
+            {
+                var result = await _dbContext.Database.SqlQuery<string>($"SELECT * FROM get_available_ips({cidServer})").ToListAsync();
+                return result;
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occurred in the method {nameof(MikrotikEndpointRepository)}.{nameof(GetMikrotikEndpointByPublicKey)}--{ex.Message}");
+                return null;
+
+            }
+        }
+        public async Task<MikrotikEndpointMakeConfig> GetDataForConfig(string interfacename, string allowedIp)
+        {
+            try
+            {
+                var result = await _dbContext.MikrotikEndpoints
+                    .Join(_dbContext.Users,
+                          endpoint => endpoint.UserId,
+                          user => user.Id,
+                          (endpoint, user) => new { endpoint, user })
+                    .Join(_dbContext.MikrotikCHRs,
+                          joined => joined.endpoint.MikrotikServerId,
+                          chr => chr.Id,
+                          (joined, chr) => new { joined.endpoint, chr })
+                    .Where(joined => joined.endpoint.MikrotikInterface == interfacename && joined.endpoint.AllowedAddress.Value == allowedIp)
+                    .Select(joined => new MikrotikEndpointMakeConfig
+                    {
+                        AllowedAddress = joined.endpoint.AllowedAddress.Value,
+                        PrivateKey = joined.endpoint.PrivateKey.EncodedKey,
+                        ConfigEndPoint = joined.chr.ConfigEndPoint,
+                        ConfigEndPointPort = joined.chr.ConfigEndPointPort,
+                        ConfigPublicKey = joined.chr.ConfigPublicKey
+                    })
+                    .FirstOrDefaultAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occurred in the method {nameof(MikrotikEndpointRepository)}.{nameof(GetDataForConfig)}--{ex.Message}");
+                return null;
+            }
         }
     }
 }

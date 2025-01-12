@@ -59,7 +59,7 @@ namespace WSM.Infrastructure.Repositories
             }
         }
 
-        public async Task<MikrotikCHR> GetMikrotikCHRById(string id)
+        public async Task<MikrotikCHR?> GetMikrotikCHRById(string id)
         {
             try
             {
@@ -101,5 +101,32 @@ namespace WSM.Infrastructure.Repositories
                 return 0;
             }
         }
+        public async Task<MikrotikCHR?> GetMikrotikCHRByWgInterface(string wgInterface)
+        {
+
+            try
+            {
+                var mikrotikCHR = await _dbContext.MikrotikCHRs
+                    .FirstOrDefaultAsync(chr => chr.DefaultWgInterface == wgInterface);
+
+                if (mikrotikCHR == null)
+                {
+                    _logger.LogWarning($"No MikrotikCHR found with DefaultWgInterface: {wgInterface}");
+                    // You can choose to return null, throw an exception, or return a default value
+                    return null; // or throw new EntityNotFoundException("MikrotikCHR not found");
+                }
+
+                return mikrotikCHR;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occurred in the method {nameof(MikrotikCHRRepository)}.{nameof(GetMikrotikCHRByWgInterface)}");
+                _logger.LogError($"Error is :{ex.Message}");
+                throw;
+            }
+
+
+        }
+
     }
 }

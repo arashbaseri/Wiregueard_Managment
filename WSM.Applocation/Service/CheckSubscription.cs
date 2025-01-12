@@ -57,7 +57,7 @@ namespace WSM.Application.Services
                 }
 
 
-                await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(600), stoppingToken);
             }
         }
     }

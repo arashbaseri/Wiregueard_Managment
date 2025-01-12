@@ -30,7 +30,7 @@ namespace WSM.Application.Services
                 var existingCHR = await _mikrotikCHRRepository.MikrotkCHRExists(newCHR.IpAddress);
                 if (existingCHR)
                 {
-                    return OperationResult<Guid?>.ErrorResult("Card with the same name already exists.");
+                    return OperationResult<Guid?>.ErrorResult("CHR with the same name already exists.");
                 }
             
 

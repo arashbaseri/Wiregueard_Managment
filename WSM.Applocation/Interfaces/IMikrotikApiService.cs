@@ -3,6 +3,7 @@ namespace WSM.Application.Interfaces
 {
     public interface IMikrotikApiService
     {
-        public Task<MikrotikResponse> MikrotikApiFetch(MikrotikCHR mikrotikCHR,string command);
+         Task<MikrotikResponse> MikrotikApiFetch(MikrotikCHR mikrotikCHR,string command);
+         Task<MikrotikResponse> MikrotikSetComand(MikrotikCHR mikrotikCHR, string command,string body);
     }
 }

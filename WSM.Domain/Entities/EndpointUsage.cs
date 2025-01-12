@@ -18,5 +18,6 @@ namespace WSM.Domain.Entities
         public long? PacketsOut { get; set; }
         public long? BytesTotal { get; set; }
         public long? PacketsTotal { get; set; }
+        public bool? IsReset { get; set; }
     }
 }

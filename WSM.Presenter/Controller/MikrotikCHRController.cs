@@ -16,8 +16,8 @@ namespace WSM.Presentation.Controllers
     public class MikrotikCHRController : ControllerBase
     {
         private readonly IMikrotikCHRService _mikrotikCHRService;
-        private readonly ILogger<TelegramController> _logger;
-        public MikrotikCHRController(IMikrotikCHRService mikrotikCHRService, ILogger<TelegramController> logger)
+        private readonly ILogger<MikrotikCHRController> _logger;
+        public MikrotikCHRController(IMikrotikCHRService mikrotikCHRService, ILogger<MikrotikCHRController> logger)
         {
             _mikrotikCHRService = mikrotikCHRService;
             _logger = logger;

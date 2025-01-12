@@ -20,41 +20,20 @@ namespace WSM.Infrastructure.DatabaseContext
             : base(options)
         {
         }
-
+ 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             #region User
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.Id); // Configuring the primary key
+                entity.Property(e => e.UserName).IsRequired().HasMaxLength(250); // Making UserName required with max length
+                entity.Property(e => e.TelegramId).IsRequired(); // Making TelegramId required
+                entity.Property(e => e.FirstName).HasMaxLength(250); // Setting max length for FirstName
+                entity.Property(e => e.LastName).HasMaxLength(250); // Setting max length for LastName
+                entity.Property(e => e.Email).HasMaxLength(250); // Setting max length for Email
+            });
 
-
-            //var emailConverter = new ValueConverter<Email, string>(
-            //    email => email.ToString(), // convert Email to string for storage
-            //    value => new Email(value)  // convert string back to Email on retrieval
-            //);
-
-            //modelBuilder.Entity<User>()
-            //    .Property(user => user.Email)
-            //    .HasConversion(emailConverter)
-            //    .HasColumnType("varchar(100)"); // Define the SQL data type and length
-
-            //var phoneConverter = new ValueConverter<Phone, string>(
-            //    phone => phone.ToString(), // convert Email to string for storage
-            //    value => new Phone(value)  // convert string back to Email on retrieval
-            //);
-
-
-            //modelBuilder.Entity<User>()
-            //    .Property(user => user.Phone)
-            //    .HasConversion(phoneConverter)
-            //    .HasColumnType("varchar(15)"); // Define the SQL data type and length
-
-            //modelBuilder.Ignore<Login>();
-
-            //modelBuilder.Ignore<Email>();
-            //modelBuilder.Ignore<Phone>();
-
-            //modelBuilder.Ignore<UserReadDto>();
-            //modelBuilder.Ignore<UserCreateDto>();
-            //modelBuilder.Ignore<UserUpdateDto>();
 
             #endregion
             #region EndpointUasge
@@ -91,6 +70,9 @@ namespace WSM.Infrastructure.DatabaseContext
                       .HasColumnType("varchar");
 
                 });
+
+
+
             });
             #endregion
 

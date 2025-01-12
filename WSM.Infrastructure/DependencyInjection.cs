@@ -7,6 +7,8 @@ using WSM.Infrastructure.Services;
 using WSM.Domain.Repositories;
 using WSM.Infrastructure.Repositories;
 using WSM.Application.Interfaces;
+using WSM.Domain.Interfaces;
+using WSM.Application.Service;
 
 
 namespace WSM.Infrastructure
@@ -21,8 +23,16 @@ namespace WSM.Infrastructure
             services.AddScoped<IMikrotikApiService, MikrotikApiService>();
             services.AddScoped<IEndpointUsageRepository, EndpointUsageRepository>();
             services.AddScoped<IEndpointCloseToExpiryRepository, EndpointCloseToExpiryRepository>();
-            
+            services.AddScoped<IMikrotikEndpointRepository, MikrotikEndpointRepository>();
+            services.AddScoped<IMikrotikEndpointService, MikrotikEndpointService>();
 
+            services.AddScoped<IUserRepository, UserRepository>();
+            //crypto
+            services.AddScoped<IWgKeyGenerationService, WgkeyGenerationService>();
+            //QrGenerator
+            services.AddScoped<IQrcodeGeneratorService, QrcodeGeneratorService>();
+            
+            
             services.AddHttpClient("MyApiClient", client =>
             {
                 client.BaseAddress = new Uri("http://s2.viptls.de:505/rest/");
@@ -32,6 +42,7 @@ namespace WSM.Infrastructure
 
             services.AddScoped<IMikrotikCHRRepository, MikrotikCHRRepository>();
             services.AddScoped<IMikrotikCHRService, MikrotikCHRService>();
+            
 
             services.AddLogging();
 

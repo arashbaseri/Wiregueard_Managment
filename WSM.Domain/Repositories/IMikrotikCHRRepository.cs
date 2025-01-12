@@ -7,7 +7,8 @@ namespace WSM.Domain.Repositories
         
         Task<int> CreateMikrotikCHR(MikrotikCHR mikrotikCHR);
         Task<int> UpdateMikrotikCHR(MikrotikCHR mikrotikCHR);
-        Task<MikrotikCHR> GetMikrotikCHRById(string id);
+        Task<MikrotikCHR?> GetMikrotikCHRById(string id);
+        Task<MikrotikCHR?> GetMikrotikCHRByWgInterface(string wgInterface);
         Task<List<MikrotikCHR>?> GetMikrotkCHRs ();
         Task<int> DeleteMikrotkCHR(MikrotikCHR mikrotikCHR);
 

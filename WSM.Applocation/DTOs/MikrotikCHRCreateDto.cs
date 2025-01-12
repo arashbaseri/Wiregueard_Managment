@@ -9,5 +9,9 @@ namespace WSM.Application.DTOs
         public string Password { get; set; }
         public int? WinboxPort { get; set; }
         public int? WWWPort { get; set; }
+        public string DefaultWgInterface { get; set; }
+        public string ConfigEndPoint { get; set; }
+        public int ConfigEndPointPort { get; set; }
+        public string ConfigPublicKey { get; set; }
     }
 }

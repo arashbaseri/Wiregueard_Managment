@@ -34,7 +34,27 @@ namespace WSM.Infrastructure.DatabaseContext
 
             #region MikrotikCHR
             CreateMap<MikrotikCHRCreateDto, MikrotikCHR>();
-#endregion
+            #endregion
+
+            CreateMap<MikrotikEndpointCreateDto, MikrotikEndpoint>()
+
+    .ForMember(dest => dest.DaysToRenew, opt => opt.MapFrom(src => src.DaysToRenew)) // Map DaysToRenew to DaysToRenew
+    .ForMember(dest => dest.AllowedAddress, opt => opt.Ignore()) // Assuming AllowedAddress is set separately
+    .ForMember(dest => dest.PublicKey, opt => opt.Ignore()) // Assuming PublicKey is set separately
+    .ForMember(dest => dest.PrivateKey, opt => opt.Ignore()) // Assuming PrivateKey is set separately
+    .ForMember(dest => dest.UserId, opt => opt.Ignore()) // Assuming UserId is set separately
+    .ForMember(dest => dest.MikrotikServerId, opt => opt.Ignore()) // Assuming MikrotikServerId is set separately
+    .ForMember(dest => dest.MikrotikInterface, opt => opt.Ignore());  // Assuming MikrotikInterface is set separately
+
+
+            CreateMap<WgCreateDto, MikrotikEndpoint>();
+            CreateMap<MikrotikEndpoint, WgCreateDto>()
+    
+    .ForMember(dest => dest.AllowedAddress, opt => opt.MapFrom(src => src.AllowedAddress)) // Map AllowedAddress to AllowedAddress
+    .ForMember(dest => dest.PublicKey, opt => opt.MapFrom(src => src.PublicKey)) // Map PublicKey to PublicKey
+    .ForMember(dest => dest.MikrotikInterface, opt => opt.MapFrom(src => src.MikrotikInterface)) // Map PublicKey to PublicKey
+
+    .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment)); // Map MikrotikInterface to MikrotikInterface
         }
     }
 }

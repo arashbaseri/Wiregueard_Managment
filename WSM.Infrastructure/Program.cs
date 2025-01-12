@@ -22,9 +22,13 @@ Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
     .WriteTo.Console()
-    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+//    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
-Log.Information("\nStarting up\n");
+// add this part so logger in other projects works.
+builder.Logging.ClearProviders(); // Remove default providers
+builder.Logging.AddSerilog();    // Add Serilog as the provider
+
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -65,4 +69,5 @@ app.MapControllers();
 var botService = app.Services.GetRequiredService<ITelegramBotService>();
 await botService.SetWebhookAsync(builder.Configuration["TelegramBot:WebhookUrl"]);
 
+Log.Information("\nStarting up\n");
 app.Run();
