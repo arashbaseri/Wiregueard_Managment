@@ -1,0 +1,52 @@
+﻿WITH UsageWithRollover AS (
+    SELECT 
+        "MikrotikEndpointId",
+        "BytesIn",
+        "BytesOut",
+        A."CreatedAt",
+
+		"Comment",
+    LAG("IsReset") OVER (PARTITION BY "MikrotikEndpointId" ORDER BY A."CreatedAt") AS PrevIsReset,
+        LAG("BytesIn") OVER (PARTITION BY "MikrotikEndpointId" ORDER BY A."CreatedAt") AS PrevBytesIn,
+        LAG("BytesOut") OVER (PARTITION BY "MikrotikEndpointId" ORDER BY A."CreatedAt") AS PrevBytesOut
+    FROM "EndpointUsages" A join public."MikrotikEndpoints" B
+	on B."Id"=A."MikrotikEndpointId"
+
+),
+CorrectedUsage AS (
+    SELECT 
+        "MikrotikEndpointId",
+		"Comment",
+        "CreatedAt",
+        CASE
+            WHEN PrevBytesIn IS NULL or PrevIsReset=true  THEN "BytesIn"  -- First record
+            WHEN "BytesIn" >= PrevBytesIn THEN "BytesIn" - PrevBytesIn  -- No rollover
+            ELSE 4294967296 + "BytesIn" - PrevBytesIn  -- Rollover occurred (4 GB = 4294967296 bytes)
+        END AS BytesInIncrement,
+        CASE
+            WHEN PrevBytesOut IS NULL or PrevIsReset=true  THEN "BytesOut"  -- First record
+            WHEN "BytesOut" >= PrevBytesOut THEN "BytesOut" - PrevBytesOut  -- No rollover
+            ELSE 4294967296 + "BytesOut" - PrevBytesOut  -- Rollover occurred
+        END AS BytesOutIncrement
+    FROM UsageWithRollover
+),
+TotalUsage AS (
+    SELECT 
+        --"MikrotikEndpointId",
+                min("CreatedAt") m,
+        max("CreatedAt") mm,
+		"Comment",
+        SUM(BytesInIncrement) AS TotalBytesIn,
+        SUM(BytesOutIncrement) AS TotalBytesOut
+    FROM CorrectedUsage
+    GROUP BY "Comment"
+)
+SELECT m  AT TIME ZONE 'Asia/Tehran',mm  AT TIME ZONE 'Asia/Tehran',
+    "Comment",
+    TotalBytesIn,
+    TotalBytesOut,
+(TotalBytesIn + TotalBytesOut) TotalUsagebyte,
+    (TotalBytesIn + TotalBytesOut)/1073741824.0 AS TotalUsage,
+    (TotalBytesIn + TotalBytesOut)/1048576.0 AS TotalUsaMiB
+FROM TotalUsage
+order by TotalBytesIn + TotalBytesOut desc;

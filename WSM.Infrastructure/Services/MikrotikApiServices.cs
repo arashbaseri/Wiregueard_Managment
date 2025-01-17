@@ -18,7 +18,7 @@ namespace WSM.Infrastructure.Services
         }
 
 
-        public async Task<MikrotikResponse> MikrotikSetComand(MikrotikCHR mikrotikCHR, string command, string body)
+        public async Task<MikrotikResponse> MikrotikPutSetComand(MikrotikCHR mikrotikCHR, string command, string body)
         {
             try
             {
@@ -85,5 +85,41 @@ namespace WSM.Infrastructure.Services
                 };
             }
         }
-    }
+
+        public async Task<MikrotikResponse> MikrotikPostSetComand(MikrotikCHR mikrotikCHR, string command, string body)
+        {
+            try
+            {
+                Log.Information("Entering SetDataAsync with command: {Command}", command);
+                var client = _httpClientFactory.CreateClient("MyApiClient");
+                var credentials = $"{mikrotikCHR.Username}:{mikrotikCHR.Password}";
+                var byteArray = Encoding.ASCII.GetBytes(credentials);
+
+                client.BaseAddress = new Uri($"http://{mikrotikCHR.IpAddress}:{mikrotikCHR.WWWPort}/");
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                var response = await client.PostAsync(command, new StringContent(body, Encoding.UTF8, "application/json"));
+                response.EnsureSuccessStatusCode();
+                var responseData = await response.Content.ReadAsStringAsync();
+                //Log.Information("Setting Mikrotik: {Command}", responseData);
+                return new MikrotikResponse
+                {
+                    Id = Guid.NewGuid(),
+                    Data = responseData,
+                    Timestamp = DateTime.UtcNow
+                };
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message, "An error occurred in MikrotikSetComand ");
+                return new MikrotikResponse
+                {
+                    Id = Guid.NewGuid(),
+                    Data = null,
+                    Timestamp = DateTime.UtcNow
+
+                };
+            }   
+        }
+     }
 }

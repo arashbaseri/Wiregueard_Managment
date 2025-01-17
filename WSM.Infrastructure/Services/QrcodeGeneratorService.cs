@@ -27,7 +27,7 @@ namespace WSM.Infrastructure.Services
                 var qrCodeData = qrCode.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
                 var qrCodeImage = new PngByteQRCode(qrCodeData);
                 //var qrCodeImageAsBitmap = qrCodeImage.GetGraphic(20);
-                var qrCodeImageAsBytes = qrCodeImage.GetGraphic(1);
+                var qrCodeImageAsBytes = qrCodeImage.GetGraphic(2);
                 var memoryStream = new MemoryStream(qrCodeImageAsBytes);
                 memoryStream.Position = 0;
                 return Task.FromResult(memoryStream);

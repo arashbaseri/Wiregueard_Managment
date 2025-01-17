@@ -13,6 +13,7 @@ namespace WSM.Domain.Repositories
         Task<MikrotikEndpoint?> GetMikrotikEndpointByPublicKey(Base64EncodedKey publicKey);
         Task<List<string>> GetAvailableIpsAsync(string cidServer);
         Task<MikrotikEndpointMakeConfig> GetDataForConfig(string interfacename, string allowedIp);
+        Task<MikrotikEndpointMakeConfig> GetDataForConfig(Guid id);
 
 
 

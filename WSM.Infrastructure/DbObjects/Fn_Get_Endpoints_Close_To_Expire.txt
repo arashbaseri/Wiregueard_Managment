@@ -1,0 +1,17 @@
+﻿CREATE OR REPLACE FUNCTION Get_Endpoints_Close_To_Expire(threshold INTERVAL)
+
+RETURNS TABLE (
+    MikrotikInterface text,
+    AllowedAddress varchar,
+    EndDate TIMESTAMPTZ,
+    TelegramId INT8
+) LANGUAGE plpgsql AS $$
+BEGIN
+    RETURN QUERY
+select "MikrotikInterface","AllowedAddress","EndDate",U."TelegramId" from "MikrotikEndpoints" E 
+   join "Users" U on E."UserId"=U."Id"
+ where  E."EndDate" < NOW() + threshold
+ and "Disabled"=false
+ ;
+END;
+$$;

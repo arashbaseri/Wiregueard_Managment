@@ -8,6 +8,7 @@ using WSM.Domain.Repositories;
 using WSM.Application.DTOs;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace WSM.Application.Services
 {
@@ -16,12 +17,14 @@ namespace WSM.Application.Services
         private readonly IMikrotikCHRRepository _mikrotikCHRRepository;
         private readonly ILogger<MikrotikCHRService> _logger;
         private readonly IMapper _mapper;
-        public MikrotikCHRService(ILogger<MikrotikCHRService> logger, IMikrotikCHRRepository mikrotikCHRRepository,IMapper mapper)
+        private readonly IMikrotikApiService _mikrotikApiService;
+        public MikrotikCHRService(ILogger<MikrotikCHRService> logger, IMikrotikCHRRepository mikrotikCHRRepository,IMapper mapper
+            , IMikrotikApiService mikrotikApiService)
         {
             _logger = logger;
             _mikrotikCHRRepository = mikrotikCHRRepository;
             _mapper = mapper;
-
+            _mikrotikApiService = mikrotikApiService;
         }
         public async Task<OperationResult<Guid?>> CreateMikrotikCHR(MikrotikCHRCreateDto newCHR)
         {
@@ -52,5 +55,7 @@ namespace WSM.Application.Services
         {
             throw new NotImplementedException();
         }
+
+        
     }
 }

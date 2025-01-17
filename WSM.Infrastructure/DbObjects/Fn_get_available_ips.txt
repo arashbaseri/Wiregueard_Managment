@@ -1,0 +1,21 @@
+﻿CREATE OR REPLACE FUNCTION get_available_ips(cidrf varchar)
+RETURNS TABLE(ip text) AS $$
+DECLARE
+    start_ip BIGINT;
+    end_ip BIGINT;
+BEGIN
+    -- Get the starting and ending IPs for the CIDR block
+    select (network(cidrf::inet)- '0.0.0.0'::inet) into start_ip ;
+    end_ip := (broadcast(cidrf::inet)- '0.0.0.0'::inet);
+
+    -- Generate series of IPs from start_ip to end_ip
+    RETURN QUERY
+    SELECT ('0.0.0.0'::inet + i)::text
+    FROM GENERATE_SERIES(start_ip+2, end_ip) AS s(i)
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM "MikrotikEndpoints"
+        WHERE "AllowedAddress"::INET = '0.0.0.0'::inet + i
+    )and '0.0.0.0'::inet + i <>cidrf::INET;
+END;
+$$ LANGUAGE plpgsql;

@@ -1,0 +1,28 @@
+﻿CREATE OR REPLACE FUNCTION disable_endpoint_and_EndpointUsages(endpoint_id_input UUID)
+RETURNS VOID AS $$
+BEGIN
+        IF  EXISTS (
+        SELECT 1
+        FROM "MikrotikEndpoints"
+        WHERE "Id"=endpoint_id_input and "Disabled"=false
+    ) THEN
+    begin
+        UPDATE "MikrotikEndpoints"
+        SET "Disabled" = TRUE
+        WHERE id = endpoint_id_input;
+
+        
+        UPDATE "EndpointUsages"
+        SET "IsReset" = TRUE
+        WHERE id = (
+            SELECT id
+            FROM "EndpointUsages" B
+            WHERE B."MikrotikEndpointId" =  "EndpointUsages"."MikrotikEndpointId"
+            ORDER BY "CreatedAt" DESC
+            LIMIT 1
+        );
+    
+        END;
+END IF;
+END;
+$$ LANGUAGE plpgsql;

@@ -6,6 +6,7 @@ namespace WSM.Application.Interfaces
     {
         Task<OperationResult<Guid?>> CreateMikrotikCHR(MikrotikCHRCreateDto cardCreate);
         Task<int> DeleteMikrotikCHR(string id);
+      
     }
 }
 

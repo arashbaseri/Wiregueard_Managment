@@ -15,6 +15,7 @@ namespace WSM.Infrastructure.DatabaseContext
         public DbSet<MikrotikCHR> MikrotikCHRs { get; set; }
         public DbSet<MikrotikEndpoint> MikrotikEndpoints { get; set; }
         public DbSet<EndpointCloseToExpiry> EndpointCloseToExpiry { get; set; }
+        public DbSet<UserEndpoint> UserEndpoints { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
@@ -101,15 +102,15 @@ namespace WSM.Infrastructure.DatabaseContext
 
 
 
-        public Expression<Func<T, object>> GetSortExpression<T>(string sortColumn)
-        {
-            var param = Expression.Parameter(typeof(T), "entity");
+        //public Expression<Func<T, object>> GetSortExpression<T>(string sortColumn)
+        //{
+        //    var param = Expression.Parameter(typeof(T), "entity");
 
-            // Find the property by name on the specified type T
-            var property = Expression.PropertyOrField(param, sortColumn);
-            var convertedProperty = Expression.Convert(property, typeof(object));
+        //    // Find the property by name on the specified type T
+        //    var property = Expression.PropertyOrField(param, sortColumn);
+        //    var convertedProperty = Expression.Convert(property, typeof(object));
 
-            return Expression.Lambda<Func<T, object>>(convertedProperty, param);
-        }
+        //    return Expression.Lambda<Func<T, object>>(convertedProperty, param);
+        //}
     }
 }
