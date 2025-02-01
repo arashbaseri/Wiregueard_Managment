@@ -116,12 +116,12 @@ namespace WSM.Infrastructure.Repositories
 
             }
         }
-        public async Task<List<string>> GetAvailableIpsAsync(string cidServer)
+        public async Task<List<string>> GetAvailableIpsAsync(string cidServer,Guid chrId)
         {
 
             try
             {
-                var result = await _dbContext.Database.SqlQuery<string>($"SELECT * FROM get_available_ips({cidServer})").ToListAsync();
+                var result = await _dbContext.Database.SqlQuery<string>($"SELECT * FROM get_available_ips({cidServer},{chrId.ToString()})").ToListAsync();
                 return result;
             }
 

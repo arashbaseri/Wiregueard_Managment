@@ -11,7 +11,7 @@ namespace WSM.Domain.Repositories
         Task<List<MikrotikEndpoint>> GetMikrotikEndpointByTelegramId(long telegramId, string filterComment="");
         Task<MikrotikEndpoint?> GetMikrotikEndpointById(long telegramId, Guid id);
         Task<MikrotikEndpoint?> GetMikrotikEndpointByPublicKey(Base64EncodedKey publicKey);
-        Task<List<string>> GetAvailableIpsAsync(string cidServer);
+        Task<List<string>> GetAvailableIpsAsync(string cidServer, Guid chrId);
         Task<MikrotikEndpointMakeConfig> GetDataForConfig(string interfacename, string allowedIp);
         Task<MikrotikEndpointMakeConfig> GetDataForConfig(Guid id);
 

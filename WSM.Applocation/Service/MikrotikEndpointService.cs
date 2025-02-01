@@ -74,7 +74,7 @@ namespace WSM.Application.Service
             }
 
             var CidServer = await GetInterfaceIp(existMikrotikCHR);
-            var IPs = await _mikrotikEndpointRepository.GetAvailableIpsAsync(CidServer);
+            var IPs = await _mikrotikEndpointRepository.GetAvailableIpsAsync(CidServer, existMikrotikCHR.Id);
             if (IPs == null)
             {
                 _logger.LogInformation($"No available IPs.");

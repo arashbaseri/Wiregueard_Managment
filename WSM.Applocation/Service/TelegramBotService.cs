@@ -42,10 +42,46 @@ namespace WSM.Application.Services
             
 
         }
+       
+        private async Task<string> ShowHome(Update update)
+        {
+            var inlineKeyboard = new InlineKeyboardMarkup(new[]
+                        {
+                                // First row
+                                new []
+                                {
+                                    //InlineKeyboardButton.WithUrl("Visit Google", "https://www.google.com"),
+                                    InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("نمایش اکانتهای وایرگارد من",""),
+                                },
+                                // Second row
+                                new []
+                                {
+                                    InlineKeyboardButton.WithCallbackData(" درخواست اکانت جدید", "NewAccount"),
+                                },
+                                // 3rd row
+                                new []
+                                {
+                                    InlineKeyboardButton.WithCallbackData(" صدرا", "Sadra"),
+                                }
+                         });
+            // await _botClient.SendTextMessageAsync(update.Message.Chat.Id, " لطقا گزینه ");
+            var str = $"✨ به shcanbot خوش آمدید! ✨" +
+                $"\r\n\nاز من میتوانید در موارد زیر استفاده کنی:" +
+                $"\r\n\n➡️ نمایش لیست اکانت های خود\r\n\n➡️ گرفتن استعلام مانده اعتبار هر اکانت\r\n\n➡️ دریافت QRCode هر اکانت" +
+                $"\r\n\nدر صورت بروز مشکل با  پشتیبان در تماس باشید" +
+                $"\r\n\n*@shcan1402*";
+            ;
+            //"*لطفا گزینه مورد نظر خورد انتخاب کنید*" + "\n توسط این بات شما امکان مدیریت اکانت های خود را دارید." + "\n در صورت بروز مشکل با آی دی پشتبان در تماس باشید" + "\n@shcan1402";
+            await _botClient.SendTextMessageAsync(chatId: update.Message.Chat.Id, text: str, replyMarkup: inlineKeyboard);
+            //string message = "Items:\n" + $"1. all.\n `/do_something`";
 
+
+            //await _botClient.SendTextMessageAsync(chatId: update.Message.Chat.Id, text: message);
+            return "";
+        }
         private async Task<string> GenerateQrcode(Update update)
         {
-            UserStates[update.CallbackQuery.Message.Chat.Id] = update.CallbackQuery.Data;
+            //UserStates[update.CallbackQuery.Message.Chat.Id] = update.CallbackQuery.Data;
             try
             {
                 var endpointId = Guid.Parse(update.CallbackQuery.Data.Split('@')[1]);
@@ -74,7 +110,42 @@ namespace WSM.Application.Services
                 return "";
             }
         }
+        private async Task<string> CreatePeer(Update update)
+        {
+            try
+            {
 
+
+                var newEndpoint = new MikrotikEndpointCreateDto
+                {
+                    TelegramId = update.Message.Chat.Id,
+                    MikrotikInterface = "linux",
+                    Comment = update.Message.Text,
+                    DaysToRenew = 30
+                };
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var wgLinuxService = scope.ServiceProvider.GetRequiredService<IWgLinuxService>();
+
+                    string res;
+                    var result = await wgLinuxService.CreatePeer(newEndpoint);
+                    if (result.Success)
+                    {
+                        res = "\u2705 اکانت با موفقیت ساخته شد" + "\n" + result.Data.AllowedAddress;
+                    }
+                    else
+                    {
+                        res = "\u26d4\ufe0f" + result.ErrorMessage;
+                    }
+
+                    return res;
+                }
+            }
+            catch (Exception ex)
+            {
+                return "\u26d4\ufe0f" + ex.Message;
+            }
+        }
         private async Task<string> CretaeNewMikrotikEndPoint(Update update)
         {
             try
@@ -175,10 +246,14 @@ namespace WSM.Application.Services
             {
                 case "NewAccount":
                     UserStates[update.CallbackQuery.Message.Chat.Id] = "AwaitingName";
-                    await _botClient.SendTextMessageAsync(chatId: update.CallbackQuery.Message.Chat.Id, text: "Please send me the name for new account.");
+                    await _botClient.SendTextMessageAsync(chatId: update.CallbackQuery.Message.Chat.Id, text: "لطفا نام اکانت را  وارد کنید:");
 
                     break;
-             
+                case "Sadra":
+                    UserStates[update.CallbackQuery.Message.Chat.Id] = "AwaitingNameSadra";
+                    await _botClient.SendTextMessageAsync(chatId: update.CallbackQuery.Message.Chat.Id, text: "لطفا نام اکانت را  وارد کنید:");
+
+                    break;
 
 
                 default:
@@ -212,13 +287,22 @@ namespace WSM.Application.Services
             {
                 if (UserStates.TryGetValue(update.Message.Chat.Id, out var currentState) && currentState == "AwaitingName")
                 {
-
-
                     var msg= await CretaeNewMikrotikEndPoint(update);
 
                     await _botClient.SendTextMessageAsync(update.Message.Chat.Id, msg);// or may is not created and say the error
                     //if could succesfully create new account then
                     UserStates.TryRemove(update.Message.Chat.Id, out _); // Reset state
+                    ShowHome(update);
+
+                }
+                if (UserStates.TryGetValue(update.Message.Chat.Id, out var currentState2) && currentState2 == "AwaitingNameSadra")
+                {
+
+                    string msgCreatePeer = await CreatePeer(update);
+                    await _botClient.SendTextMessageAsync(update.Message.Chat.Id, msgCreatePeer);// or may is not created and say the error
+                    //if could succesfully create new account then
+                    UserStates.TryRemove(update.Message.Chat.Id, out _); // Reset state
+                    ShowHome(update);
 
                 }
                 if (update.Message.Text != null && update.Message.Text.StartsWith("WG.") && update.Message.ViaBot != null)
@@ -228,33 +312,7 @@ namespace WSM.Application.Services
 
                 if (update.Message.Text == "/home")
                 {
-                    var inlineKeyboard = new InlineKeyboardMarkup(new[]
-                                 {
-                                // First row
-                                new []
-                                {
-                                    //InlineKeyboardButton.WithUrl("Visit Google", "https://www.google.com"),
-                                    InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("نمایش اکانتهای وایرگارد من",""),
-                                },
-                                // Second row
-                                new []
-                                {
-                                    InlineKeyboardButton.WithCallbackData(" درخواست اکانت جدید", "NewAccount"),
-                                }
-                         });
-                    // await _botClient.SendTextMessageAsync(update.Message.Chat.Id, " لطقا گزینه ");
-                    var str = $"✨ به shcanbot خوش آمدید! ✨" +
-                        $"\r\n\nاز من میتوانید در موارد زیر استفاده کنی:" +
-                        $"\r\n\n➡️ نمایش لیست اکانت های خود\r\n\n➡️ گرفتن استعلام مانده اعتبار هر اکانت\r\n\n➡️ دریافت QRCode هر اکانت" +
-                        $"\r\n\nدر صورت بروز مشکل با  پشتیبان در تماس باشید" +
-                        $"\r\n\n*@shcan1402*";
-                    ;
-                    //"*لطفا گزینه مورد نظر خورد انتخاب کنید*" + "\n توسط این بات شما امکان مدیریت اکانت های خود را دارید." + "\n در صورت بروز مشکل با آی دی پشتبان در تماس باشید" + "\n@shcan1402";
-                    await _botClient.SendTextMessageAsync(chatId: update.Message.Chat.Id, text: str, replyMarkup: inlineKeyboard);
-                    //string message = "Items:\n" + $"1. all.\n `/do_something`";
-
-
-                    //await _botClient.SendTextMessageAsync(chatId: update.Message.Chat.Id, text: message);
+                    ShowHome(update);
                 }
             }
         }

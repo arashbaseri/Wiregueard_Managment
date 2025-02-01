@@ -25,6 +25,8 @@ namespace WSM.Infrastructure
             services.AddScoped<IEndpointCloseToExpiryRepository, EndpointCloseToExpiryRepository>();
             services.AddScoped<IMikrotikEndpointRepository, MikrotikEndpointRepository>();
             services.AddScoped<IMikrotikEndpointService, MikrotikEndpointService>();
+            services.AddScoped<IWgLinuxService, WgLinuxService>();
+            
 
             services.AddScoped<IUserRepository, UserRepository>();
             //crypto

@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE FUNCTION get_available_ips(cidrf varchar)
+﻿CREATE OR REPLACE FUNCTION get_available_ips(cidrf varchar,chrid varchar)
 RETURNS TABLE(ip text) AS $$
 DECLARE
     start_ip BIGINT;
@@ -15,7 +15,7 @@ BEGIN
     WHERE NOT EXISTS (
         SELECT 1
         FROM "MikrotikEndpoints"
-        WHERE "AllowedAddress"::INET = '0.0.0.0'::inet + i
-    )and '0.0.0.0'::inet + i <>cidrf::INET;
+        WHERE "AllowedAddress"::INET = '0.0.0.0'::inet + i and chrid::uuid="MikrotikServerId"
+    )and '0.0.0.0'::inet + i <>cidrf::INET order by s;
 END;
 $$ LANGUAGE plpgsql;
